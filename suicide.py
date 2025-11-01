@@ -119,10 +119,7 @@ elif page == "Descriptive Analysis":
     with col1:
         st.subheader("Missing Values")
         missing_percent = (df.isnull().sum() / len(df)) * 100
-        missing_df = pd.DataFrame({
-            'Missing Count': df.isnull().sum(),
-            'Missing Percentage': missing_percent
-        })
+        missing_df = pd.DataFrame({'Missing Count': df.isnull().sum(),'Missing Percentage': missing_percent})
         st.dataframe(missing_df[missing_df['Missing Count'] > 0])
     
     with col2:
@@ -138,81 +135,48 @@ elif page == "Data Analysis":
     # Question 1: Global suicide rate over time
     st.subheader("1. How have suicide rates changed from year to year globally?")
     
-    yearly = df.groupby('year', as_index=False).agg({
-        'suicides_no': 'sum',
-        'population': 'sum'
-    })
+    yearly = df.groupby('year', as_index=False).agg({'suicides_no': 'sum','population': 'sum'})
     yearly['suicides_per_100k'] = (yearly['suicides_no'] / yearly['population']) * 100000
     
-    fig1 = px.line(yearly, x='year', y='suicides_per_100k',
-                  title='Global Suicide Rate per 100k Over Time (1985-2016)',
-                  labels={'suicides_per_100k': 'Suicides per 100k', 'year': 'Year'})
-    fig1.update_traces(mode='markers+lines', line=dict(width=3))
-    st.plotly_chart(fig1, use_container_width=True)
+    linegraph = px.line(yearly, x='year', y='suicides_per_100k', title='Global Suicide Rate per 100k Over Time (1985-2016)',labels={'suicides_per_100k': 'Suicides per 100k', 'year': 'Year'})
+    linegraph.update_traces(mode='markers+lines', line=dict(width=3))
+    st.plotly_chart(linegraph, use_container_width=True)
     
     # Question 2: Suicide rates by age group
     st.subheader("2. Which age group has the highest average suicide rate globally?")
     
-    age_grp = df.groupby('age_group', as_index=False).agg({
-        'suicides_no': 'sum',
-        'population': 'sum'
-    })
+    age_grp = df.groupby('age_group', as_index=False).agg({'suicides_no': 'sum','population': 'sum'})
     age_grp['suicides_per_100k'] = (age_grp['suicides_no'] / age_grp['population']) * 100000
     age_grp = age_grp.sort_values('suicides_per_100k', ascending=False)
     
-    fig2 = px.bar(age_grp, x='age_group', y='suicides_per_100k',
-                 title='Suicide Rate per 100k by Age Group (Global)',
-                 labels={'suicides_per_100k': 'Suicides per 100k', 'age_group': 'Age Group'},
-                 color='suicides_per_100k',
-                 color_continuous_scale='Viridis')
-    st.plotly_chart(fig2, use_container_width=True)
+    bargarph = px.bar(age_grp, x='age_group', y='suicides_per_100k', title='Suicide Rate per 100k by Age Group (Global)', labels={'suicides_per_100k': 'Suicides per 100k', 'age_group': 'Age Group'}, color='suicides_per_100k',color_continuous_scale='Viridis')
+    st.plotly_chart(bargarph, use_container_width=True)
     
     # Question 3: Suicide rates by age group and gender
     st.subheader("3. Within each age group, do males or females have higher suicide rates?")
     
-    age_sex = df.groupby(['age_group', 'sex'], as_index=False).agg({
-        'suicides_no': 'sum',
-        'population': 'sum'
-    })
+    age_sex = df.groupby(['age_group', 'sex'], as_index=False).agg({'suicides_no': 'sum', 'population': 'sum'})
     age_sex['suicides_per_100k'] = (age_sex['suicides_no'] / age_sex['population']) * 100000
     
-    fig3 = px.bar(age_sex, x='age_group', y='suicides_per_100k', color='sex',
-                 barmode='group',
-                 title='Suicide Rate per 100k by Age Group and Gender',
-                 labels={'suicides_per_100k': 'Suicides per 100k'},
-                 color_discrete_map={'male': 'blue', 'female': 'red'})
-    st.plotly_chart(fig3, use_container_width=True)
+    bargarph2 = px.bar(age_sex, x='age_group', y='suicides_per_100k', color='sex', barmode='group', title='Suicide Rate per 100k by Age Group and Gender', labels={'suicides_per_100k': 'Suicides per 100k'}, color_discrete_map={'male': 'blue', 'female': 'red'})
+    st.plotly_chart(bargarph2, use_container_width=True)
     
     # Question 4: Top countries by suicide rates with slider
     st.subheader("4. Which countries have the highest average suicide rates?")
 
     # Add a slider for number of countries
-    num_countries = st.slider(
-        "Select number of countries to display:",
-        min_value=5,
-        max_value=30,
-        value=15,
-        step=1,
-        help="Choose how many top countries to show in the bar chart"
-    )
+    num_countries = st.slider("Select number of countries to display:", min_value=5,max_value=30, value=15,step=1,help="Choose how many top countries to show in the bar chart")
 
-    country_stats = df.groupby('country', as_index=False).agg({
-        'suicides_no': 'sum',
-        'population': 'sum'
-    })
+    country_stats = df.groupby('country', as_index=False).agg({'suicides_no': 'sum','population': 'sum'})
     country_stats['suicides_per_100k'] = (country_stats['suicides_no'] / country_stats['population']) * 100000
     top_countries = country_stats.sort_values('suicides_per_100k', ascending=False).head(num_countries)
 
     # Display the number of countries selected
     st.write(f"Showing top **{num_countries}** countries by suicide rate")
 
-    fig4 = px.bar(top_countries, x='country', y='suicides_per_100k',
-                 title=f'Top {num_countries} Countries by Suicide Rate per 100k',
-                 labels={'suicides_per_100k': 'Suicides per 100k', 'country': 'Country'},
-                 color='suicides_per_100k',
-                 color_continuous_scale='Reds')
-    fig4.update_layout(xaxis_tickangle=-45)
-    st.plotly_chart(fig4, use_container_width=True)
+    bargarph3 = px.bar(top_countries, x='country', y='suicides_per_100k', title=f'Top {num_countries} Countries by Suicide Rate per 100k', labels={'suicides_per_100k': 'Suicides per 100k', 'country': 'Country'}, color='suicides_per_100k', color_continuous_scale='Reds')
+    bargarph3.update_layout(xaxis_tickangle=-45)
+    st.plotly_chart(bargarph3 , use_container_width=True)
 
     # Optional: Add a data table below the chart
     with st.expander("View detailed data table"):
@@ -224,34 +188,21 @@ elif page == "Data Analysis":
     st.subheader("5. How have suicide rates changed by generation?")
         
     if 'generation' in df.columns:
-        gen_df = df.groupby(['year', 'generation'], as_index=False).agg({
-                'suicides_no': 'sum',
-                'population': 'sum'
-            })
+        gen_df = df.groupby(['year', 'generation'], as_index=False).agg({'suicides_no': 'sum','population': 'sum'})
         gen_df['suicides_per_100k'] = (gen_df['suicides_no'] / gen_df['population']) * 100000
             
-        fig5 = px.line(gen_df, x='year', y='suicides_per_100k', color='generation',
-                      title='Suicide Rate per 100k by Generation Over Time',
-                      labels={'suicides_per_100k': 'Suicides per 100k'},
-                      color_discrete_sequence=px.colors.qualitative.Set1)
-        st.plotly_chart(fig5, use_container_width=True)
+        linechart = px.line(gen_df, x='year', y='suicides_per_100k', color='generation', title='Suicide Rate per 100k by Generation Over Time', labels={'suicides_per_100k': 'Suicides per 100k'}, color_discrete_sequence=px.colors.qualitative.Set1)
+        st.plotly_chart(linechart, use_container_width=True)
         
     # Question 6: Heatmap of suicide rates by age and gender
     st.subheader("6. Which age and gender combinations have the highest rates?")
         
-    heat_df = df.groupby(['age_group', 'sex'], as_index=False).agg({
-            'suicides_no': 'sum',
-            'population': 'sum'
-        })
+    heat_df = df.groupby(['age_group', 'sex'], as_index=False).agg({'suicides_no': 'sum','population': 'sum'})
     heat_df['suicides_per_100k'] = (heat_df['suicides_no'] / heat_df['population']) * 100000
     heat_pivot = heat_df.pivot(index='age_group', columns='sex', values='suicides_per_100k').fillna(0)
         
-    fig6 = px.imshow(heat_pivot,
-                    title='Heatmap of Suicide Rate per 100k by Age Group and Gender',
-                    labels={'x': 'Gender', 'y': 'Age Group', 'color': 'Suicides per 100k'},
-                    color_continuous_scale='Viridis',
-                    aspect="auto")
-    st.plotly_chart(fig6, use_container_width=True)
+    heatmap = px.imshow(heat_pivot, title='Heatmap of Suicide Rate per 100k by Age Group and Gender', labels={'x': 'Gender', 'y': 'Age Group', 'color': 'Suicides per 100k'},color_continuous_scale='Viridis', aspect="auto")
+    st.plotly_chart(heatmap, use_container_width=True)
         
     # Additional insights
     st.header("🔍 Key Insights")
